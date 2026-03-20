@@ -9,8 +9,21 @@ import BestsellerSection from "@/components/home/BestsellerSection";
 import ReviewSection from "@/components/home/ReviewSection";
 import DMSection from "@/components/home/DMSection";
 import EmailSubscribe from "@/components/home/EmailSubscribe";
+import SplitCategorySection from "@/components/home/SplitCategorySection";
 import { getProducts, getCategories } from "@/lib/db";
 
+// Category layout configuration
+const CATEGORY_LAYOUT = {
+  hero: ["car-frames", "hot-wheels"],
+  split: ["poster-frames", "watches", "phone-cases"],
+  featured: ["tshirts", "keychains", "bouquets"],
+};
+
+const SPLIT_SECTION_IMAGES: Record<string, string> = {
+  "poster-frames": "/poster-split.jpeg",
+  watches: "/watch-split.jpeg",
+  "phone-cases": "/cases-split.jpeg",
+};
 export default async function HomePage() {
   // Fetch data server-side
   let products: any[] = [];
@@ -22,17 +35,23 @@ export default async function HomePage() {
     // Use empty arrays if Firebase not configured yet
   }
 
+  const getCategoryBySlug = (slug: string) =>
+    categories.find((c) => c.slug === slug);
+
+  const getProductsByCategory = (categoryId: string) =>
+    products.filter((p) => p.categoryId === categoryId);
+
   const productByCategory = categories.map((category) => ({
     category,
-    products: products.filter((product) => product.categoryId === category.id),
+    products: getProductsByCategory(category.id),
   }));
-  const featuredCategories = categories.slice(5);
-  const carFrames = categories.find(
-    (c) => String(c?.name || "").trim().toLowerCase() === "car frames"
-  );
-  const hotWheels = categories.find(
-    (c) => String(c?.name || "").trim().toLowerCase() === "hot wheels"
-  );
+
+  const featuredCategories = CATEGORY_LAYOUT.featured
+    .map((slug) => getCategoryBySlug(slug))
+    .filter(Boolean);
+
+  const carFrames = getCategoryBySlug(CATEGORY_LAYOUT.hero[0]);
+  const hotWheels = getCategoryBySlug(CATEGORY_LAYOUT.hero[1]);
 
   const carFramesHref = carFrames?.slug ? `/collections/${carFrames.slug}` : carFrames?.id ? `/collections/${carFrames.id}` : "/collections";
   const hotWheelsHref = hotWheels?.slug ? `/collections/${hotWheels.slug}` : hotWheels?.id ? `/collections/${hotWheels.id}` : "/collections";
@@ -40,6 +59,24 @@ export default async function HomePage() {
   const firstCategory = productByCategory[0];
   const secondCategory = productByCategory[1];
   const thirdCategory = productByCategory[2];
+
+  // Hot Wheels products
+  const hotWheelsProducts = hotWheels
+    ? products.filter((product) => product.categoryId === hotWheels.id)
+    : [];
+
+  // Split sections data
+  const splitSections = CATEGORY_LAYOUT.split
+    .map((slug) => {
+      const category = getCategoryBySlug(slug);
+      return {
+        slug,
+        category,
+        image: SPLIT_SECTION_IMAGES[slug] || category?.image || "/placeholder.png",
+        products: category ? getProductsByCategory(category.id) : [],
+      };
+    })
+    .filter((section) => section.products.length > 0);
 
   return (
     <div className="page-enter">
@@ -60,6 +97,16 @@ export default async function HomePage() {
       {/* Hot Wheels Feature */}
       <HotWheelsFeature collectionHref={hotWheelsHref} />
 
+      {/* Hot Wheels Products */}
+      {hotWheelsProducts.length > 0 && (
+        <ProductRow
+          title="Hot Wheels"
+          subtitle="Most Loved"
+          products={hotWheelsProducts}
+          viewAllHref={hotWheelsHref}
+        />
+      )}
+
       <MarqueeStrip
         items={["New Drop Every Month", "Delivery in 5–7 Days", "Pan-India Free Shipping"]}
       />
@@ -75,6 +122,18 @@ export default async function HomePage() {
           viewAllHref={`/collections/${secondCategory.category.slug || secondCategory.category.id}`}
         />
       )}
+
+      {/* Split Category Sections */}
+      {splitSections.map((section, index) => (
+        <SplitCategorySection
+          key={section.slug}
+          title={section.category?.name || ""}
+          image={section.image}
+          products={section.products}
+          slug={section.slug}
+          imagePosition={index % 2 === 0 ? "right" : "left"}
+        />
+      ))}
 
       {/* Featured Section (categories after top 5 circle section) */}
       {featuredCategories.length > 0 ? <SecondaryCategoryGrid categories={featuredCategories} /> : null}

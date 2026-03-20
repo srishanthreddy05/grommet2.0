@@ -10,9 +10,10 @@ import { getDiscountPercent, getSellingPrice } from "@/lib/pricing";
 
 interface ProductCardProps {
   product: Product;
+  compact?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, compact = false }: ProductCardProps) {
   const { addItem, openCart } = useCart();
   const sellingPrice = getSellingPrice(product);
   const discount = getDiscountPercent(product.price, product.salePrice);
@@ -30,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/product/${product.slug || product.id}`} className="product-card group block">
-      <div className="relative bg-brand-gray-50 rounded-xl overflow-hidden aspect-square mb-3">
+      <div className={`relative bg-brand-gray-50 rounded-xl overflow-hidden aspect-square ${compact ? "mb-2" : "mb-3"}`}>
         {/* Image */}
         {product.imageUrl ? (
           <Image
@@ -47,12 +48,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Quick add button */}
-        <button
-          onClick={handleAddToCart}
-          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 bg-white text-brand-black p-2 rounded-full shadow-lg hover:bg-brand-black hover:text-white transition-all duration-200 translate-y-1 group-hover:translate-y-0"
-        >
-          <ShoppingBag size={16} />
-        </button>
+        {!compact && (
+          <button
+            onClick={handleAddToCart}
+            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 bg-white text-brand-black p-2 rounded-full shadow-lg hover:bg-brand-black hover:text-white transition-all duration-200 translate-y-1 group-hover:translate-y-0"
+          >
+            <ShoppingBag size={16} />
+          </button>
+        )}
 
         {/* Out of stock overlay */}
         {product.stock <= 0 && (
@@ -66,18 +69,18 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Info */}
       <div>
-        <h3 className="text-sm font-medium leading-tight line-clamp-2 mb-1.5">
+        <h3 className={`font-medium leading-tight line-clamp-2 ${compact ? "text-xs mb-1" : "text-sm mb-1.5"}`}>
           {product.name}
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold">₹{sellingPrice.toLocaleString()}</span>
+          <span className={compact ? "text-xs font-semibold" : "text-sm font-semibold"}>₹{sellingPrice.toLocaleString()}</span>
           {sellingPrice < product.price ? (
             <span className="text-xs text-brand-gray-400 line-through">₹{product.price.toLocaleString()}</span>
           ) : null}
           {discount > 0 ? (
             <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700">{discount}% OFF</span>
           ) : null}
-          <span className="text-xs text-brand-gray-400">Stock: {product.stock}</span>
+          {!compact && <span className="text-xs text-brand-gray-400">Stock: {product.stock}</span>}
         </div>
       </div>
     </Link>
