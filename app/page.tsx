@@ -85,7 +85,7 @@ export default async function HomePage() {
   const bestSellers = productsArray
     .filter((product) => product.bestSeller === true || product.bestSeller === "true")
     .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
-    .slice(0, 3);
+    .slice(0, 4);
 
   console.log("Products:", productsArray);
   console.log("Best Sellers:", bestSellers);
@@ -100,6 +100,7 @@ export default async function HomePage() {
           subtitle="Latest Collection"
           products={carFramesProducts}
           viewAllHref={carFramesHref}
+          theme="container"
         />
       )}
 
@@ -113,6 +114,7 @@ export default async function HomePage() {
           subtitle="Most Loved"
           products={hotWheelsProducts}
           viewAllHref={hotWheelsHref}
+          theme="container"
         />
       )}
 
@@ -125,7 +127,7 @@ export default async function HomePage() {
               <p className="text-gray-500 text-sm mt-1">Sold over 150+ pieces</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               {bestSellers.map((product) => (
                 <div key={product.id} className="bg-white rounded-xl p-4 shadow-sm">
                   <ProductCard product={product} compact />

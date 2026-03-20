@@ -25,8 +25,8 @@ export default function AdminBestSellersPage() {
   const toggleBestSeller = async (id: string, currentValue: boolean) => {
     const selected = products.filter((p) => Boolean(p.bestSeller));
 
-    if (!currentValue && selected.length >= 3) {
-      toast.error("Only 3 Best Sellers allowed");
+    if (!currentValue && selected.length >= 4) {
+      toast.error("Only 4 Best Sellers allowed");
       return;
     }
 
@@ -50,7 +50,7 @@ export default function AdminBestSellersPage() {
       <div className="mb-8">
         <h1 className="font-display text-2xl font-bold mb-1">Best Sellers</h1>
         <p className="text-sm text-brand-gray-400">
-          Select up to 3 products to feature on homepage ({selectedCount}/3 selected)
+          Select up to 4 products to feature on homepage ({selectedCount}/4 selected)
         </p>
       </div>
 

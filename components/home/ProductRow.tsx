@@ -7,12 +7,19 @@ interface ProductRowProps {
   subtitle?: string;
   products: Product[];
   viewAllHref: string;
+  theme?: "default" | "container";
 }
 
-export default function ProductRow({ title, subtitle, products, viewAllHref }: ProductRowProps) {
+export default function ProductRow({ title, subtitle, products, viewAllHref, theme = "default" }: ProductRowProps) {
+  const themedContainerClass =
+    theme === "container"
+      ? "rounded-3xl border border-gray-200 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 p-6 sm:p-8 shadow-[0_8px_20px_rgba(15,23,42,0.08)]"
+      : "";
+
   return (
     <section className="py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={themedContainerClass}>
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
@@ -50,6 +57,7 @@ export default function ProductRow({ title, subtitle, products, viewAllHref }: P
           >
             View All
           </Link>
+        </div>
         </div>
       </div>
     </section>
