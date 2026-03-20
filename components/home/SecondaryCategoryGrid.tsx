@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import type { Category } from "@/types";
 
 interface SecondaryCategoryItem {
   id: string;
@@ -13,7 +14,8 @@ interface SecondaryCategoryItem {
   href: string;
 }
 
-const SECONDARY_CATEGORIES: SecondaryCategoryItem[] = [
+/* Fallback for when no categories are available from Firebase */
+const FALLBACK_CATEGORIES: SecondaryCategoryItem[] = [
   {
     id: "bouquets",
     name: "Bouquets",
@@ -40,9 +42,32 @@ const SECONDARY_CATEGORIES: SecondaryCategoryItem[] = [
 export default function SecondaryCategoryGrid({
   categories,
 }: {
-  categories?: SecondaryCategoryItem[];
+  categories?: Category[] | SecondaryCategoryItem[];
 }) {
-  const items = categories || SECONDARY_CATEGORIES;
+  // Convert real Firebase categories to display items, or use fallback
+  let items: SecondaryCategoryItem[] = FALLBACK_CATEGORIES;
+  
+  if (Array.isArray(categories) && categories.length > 0) {
+    // Check if these are real Category objects from Firebase
+    const firstItem = categories[0] as any;
+    if ("order" in firstItem || "createdAt" in firstItem) {
+      // These are real Category objects - map them
+      console.log(`[SecondaryCategoryGrid] Using ${categories.length} real categories from Firebase`);
+      items = (categories as Category[]).map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        description: `Explore our ${cat.name.toLowerCase()} collection`,
+        image: cat.image,
+        href: `/collections/${cat.id}`,
+      }));
+    } else {
+      // These are already SecondaryCategoryItem objects
+      console.log(`[SecondaryCategoryGrid] Using ${categories.length} pre-formatted categories`);
+      items = categories as SecondaryCategoryItem[];
+    }
+  } else {
+    console.log("[SecondaryCategoryGrid] Using fallback categories");
+  }
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

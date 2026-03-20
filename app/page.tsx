@@ -65,7 +65,7 @@ export default async function HomePage() {
       )}
 
       {/* Featured Section */}
-      <SecondaryCategoryGrid />
+      <SecondaryCategoryGrid categories={categories} />
 
       {/* Reviews */}
       <ReviewSection />

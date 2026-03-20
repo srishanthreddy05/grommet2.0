@@ -26,12 +26,15 @@ export default function CategoryCircleSection({
   categories?: Category[];
 }) {
   const items: CategoryCircleItem[] = categories
-    ? categories.slice(0, 5).map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        image: cat.image,
-        color: "from-slate-100 to-gray-100",
-      }))
+    ? (
+        console.log(`[CategoryCircleSection] Received ${categories.length} categories:`, categories.map(c => ({ name: c.name, hasImage: !!c.image }))),
+        categories.slice(0, 5).map((cat) => ({
+          id: cat.id,
+          name: cat.name,
+          image: cat.image,
+          color: "from-slate-100 to-gray-100",
+        }))
+      )
     : TOP_CATEGORIES;
 
   return (
@@ -55,7 +58,7 @@ export default function CategoryCircleSection({
               >
                 {/* Circular Container */}
                 <div className={`relative w-20 h-20 rounded-full flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br ${item.color}`}>
-                  {categories ? (
+                  {categories && categories.length > 0 ? (
                     <Image
                       src={item.image || "/placeholder.png"}
                       alt={item.name}

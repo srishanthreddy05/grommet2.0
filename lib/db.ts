@@ -17,11 +17,12 @@ import type { Product, Order, Category, Review, SiteSettings, CartItem } from "@
 
 function mapCategory(id: string, raw: any): Category {
   const orderValue = Number(raw?.order);
+  const imageStr = raw?.image ? String(raw.image).trim() : "";
   return {
     id,
     name: String(raw?.name || "Unnamed Category"),
     order: Number.isFinite(orderValue) && orderValue > 0 ? orderValue : undefined,
-    image: raw?.image ? String(raw.image) : "",
+    image: imageStr || undefined,
     createdAt: raw?.createdAt ? Number(raw.createdAt) : undefined,
     updatedAt: raw?.updatedAt ? Number(raw.updatedAt) : undefined,
   };
@@ -149,11 +150,21 @@ export async function deleteProduct(id: string): Promise<void> {
 // ─── Categories ───────────────────────────────────────────────────────────────
 
 export async function getCategories(): Promise<Category[]> {
-  const snap = await get(ref(db, "categories"));
-  if (!snap.exists()) return [];
-  return Object.entries(snap.val())
-    .map(([id, val]) => mapCategory(id, val))
-    .sort((a, b) => (a.order || 999) - (b.order || 999));
+  try {
+    const snap = await get(ref(db, "categories"));
+    if (!snap.exists()) {
+      console.log("[Firebase] No categories found in database (server)");
+      return [];
+    }
+    const categories = Object.entries(snap.val())
+      .map(([id, val]) => mapCategory(id, val))
+      .sort((a, b) => (a.order || 999) - (b.order || 999));
+    console.log(`[Firebase] Server-side: Loaded ${categories.length} categories`);
+    return categories;
+  } catch (error) {
+    console.error("[Firebase] Error fetching categories (server):", error);
+    return [];
+  }
 }
 
 export async function createCategory(data: Omit<Category, "id">): Promise<string> {
@@ -382,12 +393,29 @@ export function listenToProducts(callback: (products: Product[]) => void) {
 export function listenToCategories(callback: (categories: Category[]) => void) {
   const categoriesRef = ref(db, "categories");
   const handler = (snap: any) => {
-    if (!snap.exists()) return callback([]);
-    const categories = Object.entries(snap.val())
-      .map(([id, val]) => mapCategory(id, val))
-      .sort((a, b) => (a.order || 999) - (b.order || 999));
-    callback(categories);
+    try {
+      if (!snap.exists()) {
+        console.log("[Firebase] No categories found in database");
+        return callback([]);
+      }
+      
+      const rawData = snap.val();
+      const categories = Object.entries(rawData)
+        .map(([id, val]) => mapCategory(id, val))
+        .sort((a, b) => (a.order || 999) - (b.order || 999));
+      
+      console.log(`[Firebase] Loaded ${categories.length} categories:`, categories.map(c => ({ id: c.id, name: c.name, order: c.order, hasImage: !!c.image })));
+      callback(categories);
+    } catch (error) {
+      console.error("[Firebase] Error in listenToCategories handler:", error);
+      return callback([]);
+    }
   };
-  onValue(categoriesRef, handler);
+  
+  onValue(categoriesRef, handler, (error) => {
+    console.error("[Firebase] Error listening to categories:", error);
+    callback([]);
+  });
+  
   return () => off(categoriesRef, "value", handler);
 }
