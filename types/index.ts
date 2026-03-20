@@ -22,6 +22,12 @@ export interface Category {
   productCount?: number;
 }
 
+export interface DMProof {
+  id: string;
+  image: string;
+  createdAt: number;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;

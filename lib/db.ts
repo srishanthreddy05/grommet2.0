@@ -13,7 +13,7 @@ import {
   off,
   runTransaction,
 } from "firebase/database";
-import type { Product, Order, Category, Review, SiteSettings, CartItem } from "@/types";
+import type { Product, Order, Category, Review, SiteSettings, CartItem, DMProof } from "@/types";
 
 function mapCategory(id: string, raw: any): Category {
   const orderValue = Number(raw?.order);
@@ -73,6 +73,14 @@ function mapOrder(id: string, raw: any): Order {
       raw?.status === "confirmed" || raw?.status === "shipped" || raw?.status === "delivered"
         ? raw.status
         : "pending",
+    createdAt: Number(raw?.createdAt || Date.now()),
+  };
+}
+
+function mapDMProof(id: string, raw: any): DMProof {
+  return {
+    id,
+    image: String(raw?.image || ""),
     createdAt: Number(raw?.createdAt || Date.now()),
   };
 }
@@ -192,6 +200,31 @@ export async function updateCategory(id: string, data: Partial<Pick<Category, "n
 
 export async function deleteCategory(id: string): Promise<void> {
   await remove(ref(db, `categories/${id}`));
+}
+
+// ─── DM Proofs ───────────────────────────────────────────────────────────────
+
+export async function createDMProof(data: Pick<DMProof, "image">): Promise<string> {
+  const newRef = push(ref(db, "dmProofs"));
+  const payload = {
+    image: String(data.image || ""),
+    createdAt: Date.now(),
+  };
+  await set(newRef, payload);
+  return newRef.key || "";
+}
+
+export async function deleteDMProof(id: string): Promise<void> {
+  await remove(ref(db, `dmProofs/${id}`));
+}
+
+export async function getDMProofs(): Promise<DMProof[]> {
+  const snap = await get(ref(db, "dmProofs"));
+  if (!snap.exists()) return [];
+  return Object.entries(snap.val())
+    .map(([id, val]) => mapDMProof(id, val))
+    .filter((item) => Boolean(item.image))
+    .sort((a, b) => b.createdAt - a.createdAt);
 }
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
@@ -418,4 +451,18 @@ export function listenToCategories(callback: (categories: Category[]) => void) {
   });
   
   return () => off(categoriesRef, "value", handler);
+}
+
+export function listenToDMProofs(callback: (proofs: DMProof[]) => void) {
+  const dmProofsRef = ref(db, "dmProofs");
+  const handler = (snap: any) => {
+    if (!snap.exists()) return callback([]);
+    const proofs = Object.entries(snap.val())
+      .map(([id, val]) => mapDMProof(id, val))
+      .filter((item) => Boolean(item.image))
+      .sort((a, b) => b.createdAt - a.createdAt);
+    callback(proofs);
+  };
+  onValue(dmProofsRef, handler);
+  return () => off(dmProofsRef, "value", handler);
 }

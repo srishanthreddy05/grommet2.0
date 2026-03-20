@@ -7,6 +7,7 @@ import {
   Shapes,
   Package,
   ShoppingBag,
+  MessageSquare,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -35,6 +36,7 @@ type AdminSidebarProps = {
 const NAV: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Categories", href: "/admin/categories", icon: Shapes },
+  { label: "DM Proofs", href: "/admin/dm-proofs", icon: MessageSquare },
   { label: "Products", href: "/admin/products", icon: Package },
   { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
   { label: "Settings", href: "/admin/settings", icon: Settings },
