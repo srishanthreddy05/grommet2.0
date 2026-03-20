@@ -3,16 +3,32 @@
 import { useEffect, useState } from "react";
 import { Trash2, Plus, Pencil, X } from "lucide-react";
 import toast from "react-hot-toast";
+import Cropper, { type Area } from "react-easy-crop";
 import { listenToCategories, createCategory, updateCategory, deleteCategory } from "@/lib/db";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
 import type { Category } from "@/types";
+
+function createImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.src = url;
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Failed to load image"));
+  });
+}
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState("");
   const [order, setOrder] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [showCrop, setShowCrop] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -22,6 +38,73 @@ export default function AdminCategoriesPage() {
     if (!imageFile) return imageUrl;
     const uploaded = await uploadImageToCloudinary(imageFile);
     return uploaded.secureUrl;
+  };
+
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+
+    const objectUrl = URL.createObjectURL(selected);
+    setImageFile(selected);
+    setImageSrc(objectUrl);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setShowCrop(true);
+  };
+
+  const getCroppedImg = async (): Promise<Blob> => {
+    if (!imageSrc || !croppedAreaPixels) {
+      throw new Error("Crop area is not ready");
+    }
+
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      throw new Error("Canvas context is unavailable");
+    }
+
+    canvas.width = croppedAreaPixels.width;
+    canvas.height = croppedAreaPixels.height;
+
+    ctx.drawImage(
+      image,
+      croppedAreaPixels.x,
+      croppedAreaPixels.y,
+      croppedAreaPixels.width,
+      croppedAreaPixels.height,
+      0,
+      0,
+      croppedAreaPixels.width,
+      croppedAreaPixels.height
+    );
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+          return;
+        }
+        reject(new Error("Failed to create cropped image"));
+      }, "image/jpeg");
+    });
+  };
+
+  const handleCrop = async () => {
+    try {
+      const croppedBlob = await getCroppedImg();
+      const croppedFile = new File([croppedBlob], "category-cropped.jpg", {
+        type: "image/jpeg",
+      });
+
+      const previewUrl = URL.createObjectURL(croppedFile);
+      setImageFile(croppedFile);
+      setImageSrc(previewUrl);
+      setShowCrop(false);
+    } catch {
+      toast.error("Failed to crop image");
+    }
   };
 
   const handleSave = async () => {
@@ -35,6 +118,10 @@ export default function AdminCategoriesPage() {
     }
     if (!editingId && !imageFile) {
       toast.error("Category image is required");
+      return;
+    }
+    if (showCrop) {
+      toast.error("Please crop and save the selected image first");
       return;
     }
 
@@ -60,6 +147,7 @@ export default function AdminCategoriesPage() {
       setName("");
       setOrder("");
       setImageFile(null);
+      setImageSrc(null);
       setImageUrl("");
       setEditingId(null);
     } catch {
@@ -74,6 +162,7 @@ export default function AdminCategoriesPage() {
     setName(category.name || "");
     setOrder(category.order ? String(category.order) : "");
     setImageUrl(category.image || "");
+    setImageSrc(category.image || null);
     setImageFile(null);
   };
 
@@ -82,7 +171,9 @@ export default function AdminCategoriesPage() {
     setName("");
     setOrder("");
     setImageFile(null);
+    setImageSrc(null);
     setImageUrl("");
+    setShowCrop(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -127,12 +218,12 @@ export default function AdminCategoriesPage() {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              onChange={onSelectFile}
               className="w-full border rounded-lg px-3 py-2 mt-1"
             />
-            {(imageFile || imageUrl) && (
+            {(imageSrc || imageUrl) && (
               <img
-                src={imageFile ? URL.createObjectURL(imageFile) : imageUrl}
+                src={imageSrc || imageUrl}
                 alt="Category preview"
                 className="w-20 h-20 rounded-full object-cover mt-2"
               />
@@ -204,6 +295,47 @@ export default function AdminCategoriesPage() {
           </table>
         )}
       </div>
+
+      {showCrop && imageSrc ? (
+        <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center px-4">
+          <div className="relative w-[300px] h-[300px] bg-black rounded-lg overflow-hidden">
+            <Cropper
+              image={imageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={1}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={(_, croppedPixels) => setCroppedAreaPixels(croppedPixels)}
+            />
+          </div>
+
+          <input
+            type="range"
+            min={1}
+            max={3}
+            step={0.1}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+            className="mt-4 w-[300px]"
+          />
+
+          <div className="mt-4 flex items-center gap-2">
+            <button
+              onClick={handleCrop}
+              className="bg-brand-black text-white px-4 py-2 rounded-md text-sm font-semibold"
+            >
+              Crop & Save
+            </button>
+            <button
+              onClick={() => setShowCrop(false)}
+              className="bg-white text-brand-black px-4 py-2 rounded-md text-sm font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
