@@ -43,7 +43,7 @@ function toFriendlyCreateError(error: unknown): string {
   const lower = message.toLowerCase();
 
   if (lower.includes("permission_denied") || lower.includes("permission denied")) {
-    return "Firebase rejected this write (permission denied). Check your Realtime Database rules for stock/products.";
+    return "Firebase rejected this write (permission denied). Check your Realtime Database rules for stock.";
   }
 
   if (lower.includes("cloudinary") || lower.includes("upload preset") || lower.includes("secure_url")) {
@@ -289,7 +289,7 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
       };
       const productSlug = slugify(payload.name);
 
-      const productRef = push(ref(db, "products"));
+      const productRef = push(ref(db, "stock"));
       if (!productRef.key) {
         throw new Error("Could not generate product id");
       }
@@ -311,13 +311,6 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
         createdAt: payload.createdAt,
         updatedAt: Date.now(),
       });
-
-      // Keep a mirror in /products, but don't block creation if only this path is restricted.
-      try {
-        await set(ref(db, `products/${productRef.key}`), { ...payload, slug: productSlug });
-      } catch (mirrorError) {
-        console.warn("Non-blocking mirror write to products failed:", mirrorError);
-      }
 
       resetForm();
       onSuccessAction?.();

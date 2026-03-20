@@ -115,9 +115,11 @@ async function resolveStockPath(productId: string): Promise<`stock/${string}/sto
 export async function getProducts(): Promise<Product[]> {
   const snap = await get(ref(db, "stock"));
   if (!snap.exists()) return [];
-  return Object.entries(snap.val())
+  const products = Object.entries(snap.val())
     .map(([id, val]) => mapProduct(id, val))
     .sort((a, b) => b.createdAt - a.createdAt);
+  console.log(`[Firebase] LIVE PRODUCTS (stock): ${products.length}`);
+  return products;
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
@@ -192,7 +194,7 @@ export async function getCategories(): Promise<Category[]> {
     const categories = Object.entries(snap.val())
       .map(([id, val]) => mapCategory(id, val))
       .sort((a, b) => (a.order || 999) - (b.order || 999));
-    console.log(`[Firebase] Server-side: Loaded ${categories.length} categories`);
+    console.log(`[Firebase] LIVE CATEGORIES: ${categories.length}`);
     return categories;
   } catch (error) {
     console.error("[Firebase] Error fetching categories (server):", error);

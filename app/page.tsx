@@ -12,6 +12,9 @@ import EmailSubscribe from "@/components/home/EmailSubscribe";
 import SplitCategorySection from "@/components/home/SplitCategorySection";
 import { getProducts, getCategories } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Category layout configuration
 const CATEGORY_LAYOUT = {
   hero: ["car-frames", "hot-wheels"],

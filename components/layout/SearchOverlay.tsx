@@ -67,7 +67,6 @@ export default function SearchOverlay() {
   const [products, setProducts] = useState<SearchableProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
     const onOpen = () => setIsOpen(true);
@@ -98,26 +97,14 @@ export default function SearchOverlay() {
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || hasLoadedRef.current) return;
+    if (!isOpen) return;
 
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const productsSnap = await get(ref(db, "products"));
-
-        if (productsSnap.exists()) {
-          const mappedProducts = Object.entries(productsSnap.val() as Record<string, RawProduct>).map(([id, raw]) =>
-            mapProduct(id, raw)
-          );
-          setProducts(mappedProducts);
-          hasLoadedRef.current = true;
-          return;
-        }
-
         const stockSnap = await get(ref(db, "stock"));
         if (!stockSnap.exists()) {
           setProducts([]);
-          hasLoadedRef.current = true;
           return;
         }
 
@@ -126,7 +113,6 @@ export default function SearchOverlay() {
         );
 
         setProducts(mappedStockProducts);
-        hasLoadedRef.current = true;
       } finally {
         setLoading(false);
       }

@@ -4,6 +4,9 @@ import CollectionSortSelect from "@/components/product/CollectionSortSelect";
 import { redirect } from "next/navigation";
 import type { Product } from "@/types";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface Props {
   params: { slug: string };
   searchParams: { sort?: string };
