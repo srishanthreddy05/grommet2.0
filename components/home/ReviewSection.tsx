@@ -40,16 +40,17 @@ function Stars({ count }: { count: number }) {
 export default function ReviewSection() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-8">
-        <p className="text-xs font-semibold tracking-widest uppercase text-brand-gray-400 mb-2">
-          What They Say
-        </p>
-        <h2 className="font-display text-3xl font-bold">Customer Reviews</h2>
-      </div>
+      <div className="bg-yellow-400 rounded-3xl p-8 sm:p-12">
+        <div className="text-center mb-8">
+          <p className="text-xs font-semibold tracking-widest uppercase text-brand-gray-700 mb-2">
+            What They Say
+          </p>
+          <h2 className="font-display text-3xl font-bold">Customer Reviews</h2>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {REVIEWS.map((review, i) => (
-          <div key={i} className="bg-brand-gray-50 rounded-2xl p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {REVIEWS.map((review, i) => (
+            <div key={i} className="bg-white rounded-2xl p-5">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-brand-black text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                 {review.initials}
@@ -62,6 +63,7 @@ export default function ReviewSection() {
             <p className="text-sm text-brand-gray-600 leading-relaxed">{review.text}</p>
           </div>
         ))}
+      </div>
       </div>
     </section>
   );
