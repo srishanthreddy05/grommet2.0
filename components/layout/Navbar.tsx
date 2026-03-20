@@ -90,7 +90,15 @@ export default function Navbar() {
 
             {/* Right Icons */}
             <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-brand-gray-100 rounded-full transition-colors">
+              <button
+                className="p-2 hover:bg-brand-gray-100 rounded-full transition-colors"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("open-product-search"));
+                  }
+                }}
+                aria-label="Open product search"
+              >
                 <Search size={18} />
               </button>
 

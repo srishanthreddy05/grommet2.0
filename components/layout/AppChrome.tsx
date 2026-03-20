@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import CartDrawer from "@/components/cart/CartDrawer";
 import Footer from "@/components/layout/Footer";
+import SearchOverlay from "@/components/layout/SearchOverlay";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,6 +17,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
+      <SearchOverlay />
       <CartDrawer />
       <main>{children}</main>
       <Footer />

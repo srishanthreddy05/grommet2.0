@@ -38,6 +38,9 @@ function mapProduct(id: string, raw: any): Product {
         : source?.salePrice
           ? Number(source.salePrice)
           : null,
+    tags: Array.isArray(source?.tags)
+      ? source.tags.map((tag: unknown) => String(tag || "").trim()).filter(Boolean)
+      : [],
     categoryId,
     imageUrl,
     stock: Number(source?.stock || 0),
