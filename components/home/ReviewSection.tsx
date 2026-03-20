@@ -1,8 +1,28 @@
 const REVIEWS = [
-  { name: "Priya N.", rating: 5, text: "I collect a lot of magnets but this one definitely stands out. Best purchase of this year, THANK YOU!", initials: "PN" },
-  { name: "Unnati B.", rating: 5, text: "The fridge magnets I ordered were absolutely amazing! The quality of the polaroid was also great, thanks ❤️", initials: "UB" },
-  { name: "Prisha J.", rating: 5, text: "Love this magnet! It's so cute and adds a personal touch to my fridge. Definitely a conversation starter!", initials: "PJ" },
-  { name: "Gayatri T.", rating: 4, text: "The hamper is really good, thank you for making my mom's birthday special. She loved it. Will order again soon.", initials: "GT" },
+  {
+    name: "Aisha Khan",
+    initials: "AK",
+    rating: 5,
+    text: "Thank you so much! The frames are looking really good even with minimal detailing. Quality is amazing 🙌",
+  },
+  {
+    name: "Rahul Verma",
+    initials: "RV",
+    rating: 5,
+    text: "Being a Porsche fan, this is exactly what I wanted 🔥 The Hot Wheels collection looks insane!",
+  },
+  {
+    name: "Sneha Reddy",
+    initials: "SR",
+    rating: 5,
+    text: "Greattttt thank youuuu so muchhhh ❤️ Loved the final output!",
+  },
+  {
+    name: "Arjun Mehta",
+    initials: "AM",
+    rating: 5,
+    text: "This is sooo good! Thank you for the amazing work 🙌 Will definitely order again.",
+  },
 ];
 
 function Stars({ count }: { count: number }) {

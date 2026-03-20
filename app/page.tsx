@@ -1,3 +1,5 @@
+import Link from "next/link";
+import Image from "next/image";
 import HeroSection from "@/components/home/HeroSection";
 import CategoryCircleSection from "@/components/home/CategoryCircleSection";
 import SecondaryCategoryGrid from "@/components/home/SecondaryCategoryGrid";
@@ -25,6 +27,15 @@ export default async function HomePage() {
     products: products.filter((product) => product.categoryId === category.id),
   }));
   const featuredCategories = categories.slice(5);
+  const carFrames = categories.find(
+    (c) => String(c?.name || "").trim().toLowerCase() === "car frames"
+  );
+  const hotWheels = categories.find(
+    (c) => String(c?.name || "").trim().toLowerCase() === "hot wheels"
+  );
+
+  const carFramesHref = carFrames?.id ? `/collections/${carFrames.id}` : "/collections";
+  const hotWheelsHref = hotWheels?.id ? `/collections/${hotWheels.id}` : "/collections";
 
   const firstCategory = productByCategory[0];
   const secondCategory = productByCategory[1];
@@ -35,7 +46,7 @@ export default async function HomePage() {
       {/* Top Categories - Circular Icons */}
       <CategoryCircleSection categories={categories} />
 
-      <HeroSection />
+      <HeroSection collectionHref={carFramesHref} />
 
       {firstCategory && firstCategory.products.length > 0 && (
         <ProductRow
@@ -46,8 +57,8 @@ export default async function HomePage() {
         />
       )}
 
-      {/* Polaroid Magnets Feature */}
-      <PolaroidFeature />
+      {/* Hot Wheels Feature */}
+      <HotWheelsFeature collectionHref={hotWheelsHref} />
 
       <MarqueeStrip
         items={["New Drop Every Month", "Delivery in 5–7 Days", "Pan-India Free Shipping"]}
@@ -93,25 +104,52 @@ export default async function HomePage() {
   );
 }
 
-// Placeholder feature section
-function PolaroidFeature() {
+function HotWheelsFeature({ collectionHref }: { collectionHref: string }) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="relative bg-brand-gray-50 rounded-2xl overflow-hidden h-64 sm:h-80 flex items-center">
-        <div className="p-8 sm:p-12">
-          <p className="text-xs font-semibold tracking-widest uppercase text-brand-gray-400 mb-2">
-            🧲 ✨ Your Memories
+      <div className="relative flex min-h-[320px] items-center overflow-hidden rounded-2xl bg-brand-black sm:min-h-[420px]">
+        <Image
+          src="/hotwheel-hero.jpeg"
+          alt="Hot Wheels"
+          fill
+          className="object-cover opacity-60 scale-105 animate-[fadeIn_1.2s_ease-out]"
+          priority={false}
+        />
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/5" />
+
+        <div className="relative z-10 px-8 sm:px-14 py-12 max-w-xl">
+          <p className="inline-block text-xs font-semibold tracking-widest uppercase text-brand-gray-400 mb-4">
+            LATEST COLLECTION
           </p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold leading-tight mb-4">
-            Your Memories,<br />Now Magnetic.
+          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+            Fan Favorite ✦<br />
+            Not Just A Toy.<br />
+            <span className="text-brand-gray-300">A Collector&apos;s Obsession.</span>
           </h2>
-          <a
-            href="/collections/fridge-magnets"
-            className="inline-flex items-center gap-2 bg-brand-black text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-brand-gray-800 transition-colors"
-          >
-            Create Yours
-          </a>
+          <p className="text-brand-gray-400 text-sm sm:text-base mb-8 leading-relaxed">
+            Miniature legends crafted for speed lovers. Starting ₹499.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={collectionHref}
+              className="bg-white text-brand-black px-6 py-3 rounded-full text-sm font-semibold shadow-[0_0_24px_rgba(255,255,255,0.35)] hover:bg-brand-gray-100 hover:scale-105 transition duration-300"
+            >
+              Explore Collection
+            </Link>
+            <Link
+              href="/collections"
+              className="border border-brand-gray-600 text-white px-6 py-3 rounded-full text-sm font-semibold hover:border-brand-gray-400 hover:scale-105 transition duration-300"
+            >
+              View All
+            </Link>
+          </div>
         </div>
+
+        <div className="pointer-events-none absolute -right-20 bottom-0 hidden h-72 w-72 rounded-full bg-white/20 blur-3xl sm:block" />
+        <div className="pointer-events-none absolute right-8 top-10 hidden h-36 w-36 rounded-full bg-white/10 blur-2xl sm:block" />
+        <div className="pointer-events-none absolute right-8 top-10 hidden h-28 w-28 rounded-full border border-white/25 sm:block" />
+        <div className="pointer-events-none absolute right-20 top-1/2 hidden h-px w-44 bg-gradient-to-r from-transparent via-white/70 to-transparent sm:block" />
       </div>
     </section>
   );

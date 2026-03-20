@@ -43,7 +43,6 @@ export default function Navbar() {
 
   const drawerLinks = [
     { label: "Home", href: "/" },
-    { label: "Categories", href: navLinks[0]?.href || "/" },
     ...navLinks,
     { label: "Profile", href: user ? "/profile" : "/login" },
   ];

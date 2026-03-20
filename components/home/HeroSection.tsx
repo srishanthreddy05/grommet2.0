@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export default function HeroSection() {
+type HeroSectionProps = {
+  collectionHref: string;
+};
+
+export default function HeroSection({ collectionHref }: HeroSectionProps) {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="relative flex min-h-[320px] items-center overflow-hidden rounded-2xl bg-brand-black sm:min-h-[420px]">
@@ -37,7 +41,7 @@ export default function HeroSection() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/collections/car-frames"
+              href={collectionHref}
               className="bg-white text-brand-black px-6 py-3 rounded-full text-sm font-semibold hover:bg-brand-gray-100 transition-colors"
             >
               Explore Collection
