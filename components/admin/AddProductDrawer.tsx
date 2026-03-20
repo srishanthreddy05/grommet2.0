@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Loader2, Plus, X } from "lucide-react";
 import { onValue, push, ref, set } from "firebase/database";
 import { db } from "@/lib/firebase";
@@ -427,7 +428,13 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
 
                 {mainImage && (
                   <div className="relative mt-2 h-24 w-24 overflow-hidden rounded-lg border border-brand-gray-200">
-                    <img src={mainImage.previewUrl} alt="Main preview" className="h-full w-full object-cover" />
+                    <Image
+                      src={mainImage.previewUrl}
+                      alt="Main preview"
+                      fill
+                      sizes="96px"
+                      className="object-cover"
+                    />
                     <button
                       type="button"
                       onClick={removeMainImage}
@@ -448,7 +455,13 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
                   <div className="grid grid-cols-4 gap-2 pt-1">
                     {albumImages.map((image) => (
                       <div key={image.id} className="relative h-20 w-full overflow-hidden rounded-lg border border-brand-gray-200">
-                        <img src={image.previewUrl} alt="Album preview" className="h-full w-full object-cover" />
+                        <Image
+                          src={image.previewUrl}
+                          alt="Album preview"
+                          fill
+                          sizes="(max-width: 640px) 25vw, 80px"
+                          className="object-cover"
+                        />
                         <button
                           type="button"
                           onClick={() => removeAlbumImage(image.id)}

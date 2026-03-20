@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import NextImage from "next/image";
 import { Trash2, Plus, Pencil, X } from "lucide-react";
 import toast from "react-hot-toast";
 import Cropper, { type Area } from "react-easy-crop";
@@ -222,9 +223,11 @@ export default function AdminCategoriesPage() {
               className="w-full border rounded-lg px-3 py-2 mt-1"
             />
             {(imageSrc || imageUrl) && (
-              <img
+              <NextImage
                 src={imageSrc || imageUrl}
                 alt="Category preview"
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-full object-cover mt-2"
               />
             )}
@@ -270,7 +273,13 @@ export default function AdminCategoriesPage() {
                   <td className="py-3 px-4">{category.order || "-"}</td>
                   <td className="py-3 px-4">
                     {category.image ? (
-                      <img src={category.image} alt={category.name} className="w-10 h-10 rounded-full object-cover" />
+                      <NextImage
+                        src={category.image}
+                        alt={category.name}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
                     ) : (
                       <span className="text-xs text-brand-gray-400">No image</span>
                     )}

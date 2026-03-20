@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   return (
     <div>
       <h1 className="font-display text-2xl font-bold mb-1">Dashboard</h1>
-      <p className="text-sm text-brand-gray-400 mb-8">Welcome back! Here's what's happening.</p>
+      <p className="text-sm text-brand-gray-400 mb-8">Welcome back! Here&apos;s what&apos;s happening.</p>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
