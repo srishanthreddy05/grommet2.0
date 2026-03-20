@@ -24,6 +24,7 @@ export default async function HomePage() {
     category,
     products: products.filter((product) => product.categoryId === category.id),
   }));
+  const featuredCategories = categories.slice(5);
 
   const firstCategory = productByCategory[0];
   const secondCategory = productByCategory[1];
@@ -64,8 +65,8 @@ export default async function HomePage() {
         />
       )}
 
-      {/* Featured Section */}
-      <SecondaryCategoryGrid categories={categories} />
+      {/* Featured Section (categories after top 5 circle section) */}
+      {featuredCategories.length > 0 ? <SecondaryCategoryGrid categories={featuredCategories} /> : null}
 
       {/* Reviews */}
       <ReviewSection />

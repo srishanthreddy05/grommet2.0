@@ -44,29 +44,26 @@ export default function SecondaryCategoryGrid({
 }: {
   categories?: Category[] | SecondaryCategoryItem[];
 }) {
-  // Convert real Firebase categories to display items, or use fallback
+  // Convert real Firebase categories to display items. Only use fallback when prop is omitted.
   let items: SecondaryCategoryItem[] = FALLBACK_CATEGORIES;
-  
-  if (Array.isArray(categories) && categories.length > 0) {
-    // Check if these are real Category objects from Firebase
-    const firstItem = categories[0] as any;
-    if ("order" in firstItem || "createdAt" in firstItem) {
-      // These are real Category objects - map them
-      console.log(`[SecondaryCategoryGrid] Using ${categories.length} real categories from Firebase`);
-      items = (categories as Category[]).map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        description: `Explore our ${cat.name.toLowerCase()} collection`,
-        image: cat.image,
-        href: `/collections/${cat.id}`,
-      }));
+
+  if (Array.isArray(categories)) {
+    if (categories.length === 0) {
+      items = [];
     } else {
-      // These are already SecondaryCategoryItem objects
-      console.log(`[SecondaryCategoryGrid] Using ${categories.length} pre-formatted categories`);
-      items = categories as SecondaryCategoryItem[];
+      const firstItem = categories[0] as any;
+      if ("order" in firstItem || "createdAt" in firstItem) {
+        items = (categories as Category[]).map((cat) => ({
+          id: cat.id,
+          name: cat.name,
+          description: `Explore our ${cat.name.toLowerCase()} collection`,
+          image: cat.image,
+          href: `/collections/${cat.id}`,
+        }));
+      } else {
+        items = categories as SecondaryCategoryItem[];
+      }
     }
-  } else {
-    console.log("[SecondaryCategoryGrid] Using fallback categories");
   }
 
   return (
