@@ -7,6 +7,7 @@ import { getProductById } from "@/lib/db";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/types";
 import toast from "react-hot-toast";
+import { getDiscountPercent, getSellingPrice } from "@/lib/pricing";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<Product | null>(null);
@@ -41,6 +42,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     toast.success("Added to cart!");
   };
 
+  const sellingPrice = getSellingPrice(product);
+  const discount = getDiscountPercent(product.price, product.salePrice);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 page-enter">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
@@ -68,8 +72,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
           <h1 className="font-display text-3xl font-bold mb-4 leading-tight">{product.name}</h1>
 
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-2xl font-bold">₹{product.price.toLocaleString()}</span>
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
+            <span className="text-2xl font-bold">₹{sellingPrice.toLocaleString()}</span>
+            {sellingPrice < product.price ? (
+              <span className="text-base text-brand-gray-400 line-through">₹{product.price.toLocaleString()}</span>
+            ) : null}
+            {discount > 0 ? (
+              <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">{discount}% OFF</span>
+            ) : null}
             <span className="text-sm text-brand-gray-500">Stock: {product.stock}</span>
           </div>
 

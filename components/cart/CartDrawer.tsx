@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { getSellingPrice } from "@/lib/pricing";
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, totalPrice, totalItems } = useCart();
@@ -113,7 +114,7 @@ export default function CartDrawer() {
 
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-semibold">
-                          ₹{(item.product.price * item.quantity).toLocaleString()}
+                          ₹{(getSellingPrice(item.product) * item.quantity).toLocaleString()}
                         </span>
                         <button
                           onClick={() => removeItem(item.product.id)}

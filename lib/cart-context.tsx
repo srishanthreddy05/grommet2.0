@@ -3,6 +3,7 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import type { CartItem, Product } from "@/types";
 import { getProductsByIds, placeOrder } from "@/lib/db";
+import { getSellingPrice } from "@/lib/pricing";
 
 interface CartState {
   items: CartItem[];
@@ -118,7 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [state.items]);
 
   const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = state.items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const totalPrice = state.items.reduce((sum, i) => sum + getSellingPrice(i.product) * i.quantity, 0);
 
   const placeOrderFromCart = async (input: {
     userId: string;

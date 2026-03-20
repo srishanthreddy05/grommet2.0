@@ -12,11 +12,13 @@ import {
 } from "@/lib/db";
 import type { Product, Category } from "@/types";
 import AddProductDrawer from "@/components/admin/AddProductDrawer";
+import { getDiscountPercent } from "@/lib/pricing";
 
 const EMPTY_FORM = {
   name: "",
   description: "",
   price: "",
+  salePrice: "",
   categoryId: "",
   imageUrl: "",
   stock: "",
@@ -30,6 +32,7 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     const unsubProducts = listenToProducts(setProducts);
@@ -55,12 +58,18 @@ export default function AdminProducts() {
       name: product.name,
       description: product.description,
       price: String(product.price),
+      salePrice: typeof product.salePrice === "number" && product.salePrice > 0 ? String(product.salePrice) : "",
       categoryId: product.categoryId,
       imageUrl: product.imageUrl,
       stock: String(product.stock),
     });
+    setFormError("");
     setShowForm(true);
   };
+
+  const mrpValue = Number(form.price || 0);
+  const sellingValue = form.salePrice ? Number(form.salePrice) : null;
+  const discountValue = getDiscountPercent(mrpValue, sellingValue);
 
   const handleSave = async () => {
     if (!editing) {
@@ -73,15 +82,32 @@ export default function AdminProducts() {
       return;
     }
 
+    const mrp = Number(form.price);
+    const salePrice = form.salePrice ? Number(form.salePrice) : null;
+    const stock = Number(form.stock);
+
+    if (mrp < 0 || stock < 0 || (salePrice !== null && salePrice < 0)) {
+      setFormError("Values cannot be negative.");
+      return;
+    }
+
+    if (salePrice !== null && salePrice > mrp) {
+      setFormError("Selling Price must be less than or equal to MRP.");
+      return;
+    }
+
+    setFormError("");
+
     setSaving(true);
     try {
       const payload: Omit<Product, "id"> = {
         name: form.name.trim(),
         description: form.description.trim(),
-        price: Number(form.price),
+        price: mrp,
+        salePrice,
         categoryId: form.categoryId,
         imageUrl: form.imageUrl.trim(),
-        stock: Number(form.stock),
+        stock,
         createdAt: editing?.createdAt || Date.now(),
       };
 
@@ -182,10 +208,18 @@ export default function AdminProducts() {
               <Field label="Product Name" value={form.name} onChange={(value) => setForm((f) => ({ ...f, name: value }))} />
               <Field label="Description" value={form.description} onChange={(value) => setForm((f) => ({ ...f, description: value }))} textarea />
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Price" type="number" value={form.price} onChange={(value) => setForm((f) => ({ ...f, price: value }))} />
+                <Field label="MRP" type="number" value={form.price} onChange={(value) => setForm((f) => ({ ...f, price: value }))} />
+                <Field label="Selling Price" type="number" value={form.salePrice} onChange={(value) => setForm((f) => ({ ...f, salePrice: value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <Field label="Stock" type="number" value={form.stock} onChange={(value) => setForm((f) => ({ ...f, stock: value }))} />
+                <Field label="Discount (%)" value={String(discountValue)} onChange={() => {}} disabled />
               </div>
               <Field label="Image URL" value={form.imageUrl} onChange={(value) => setForm((f) => ({ ...f, imageUrl: value }))} />
+
+              {formError ? (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{formError}</div>
+              ) : null}
 
               <div>
                 <label className="block text-xs font-semibold text-brand-gray-600 mb-1.5">Category</label>
@@ -235,25 +269,28 @@ type FieldProps = {
   onChange: (value: string) => void;
   type?: string;
   textarea?: boolean;
+  disabled?: boolean;
 };
 
-function Field({ label, value, onChange, type = "text", textarea = false }: FieldProps) {
+function Field({ label, value, onChange, type = "text", textarea = false, disabled = false }: FieldProps) {
   return (
     <div>
       <label className="block text-xs font-semibold text-brand-gray-600 mb-1.5">{label}</label>
       {textarea ? (
         <textarea
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
           rows={3}
-          className="w-full border border-brand-gray-200 rounded-lg px-3 py-2 text-sm"
+          className="w-full border border-brand-gray-200 rounded-lg px-3 py-2 text-sm disabled:bg-brand-gray-50"
         />
       ) : (
         <input
           type={type}
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full border border-brand-gray-200 rounded-lg px-3 py-2 text-sm"
+          className="w-full border border-brand-gray-200 rounded-lg px-3 py-2 text-sm disabled:bg-brand-gray-50"
         />
       )}
     </div>

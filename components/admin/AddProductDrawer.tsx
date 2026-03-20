@@ -244,9 +244,14 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
   };
 
   const validateBeforeSubmit = () => {
+    const mrp = Number(form.price);
+    const salePrice = form.salePrice.trim() ? Number(form.salePrice) : null;
+
     if (!form.name.trim()) return "Product name is required.";
-    if (!form.price.trim() || Number(form.price) < 0) return "Price is required and must be valid.";
+    if (!form.price.trim() || mrp < 0) return "Price is required and must be valid.";
     if (!form.stock.trim() || Number(form.stock) < 0) return "Stock is required and must be valid.";
+    if (salePrice !== null && salePrice < 0) return "Selling price cannot be negative.";
+    if (salePrice !== null && salePrice > mrp) return "Selling price must be less than or equal to MRP.";
     if (!form.category.trim()) return "Please select a category.";
     if (!mainImage) return "Main image is required.";
     return "";

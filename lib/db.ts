@@ -32,6 +32,12 @@ function mapProduct(id: string, raw: any): Product {
     name: String(source?.name || "Untitled Product"),
     description: String(source?.description || ""),
     price: Number(source?.price || 0),
+    salePrice:
+      typeof source?.salePrice === "number"
+        ? Number(source.salePrice)
+        : source?.salePrice
+          ? Number(source.salePrice)
+          : null,
     categoryId,
     imageUrl,
     stock: Number(source?.stock || 0),
@@ -188,7 +194,13 @@ export async function placeOrder(
     productId: item.product.id,
     quantity: item.quantity,
   }));
-  const totalPrice = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const totalPrice = items.reduce((sum, item) => {
+    const sellingPrice =
+      typeof item.product.salePrice === "number" && item.product.salePrice > 0 && item.product.salePrice <= item.product.price
+        ? item.product.salePrice
+        : item.product.price;
+    return sum + sellingPrice * item.quantity;
+  }, 0);
 
   const stockPaths = new Map<string, `stock/${string}/stock` | `stock/${string}/album/stock`>();
   for (const item of items) {

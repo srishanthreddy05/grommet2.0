@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { getSellingPrice } from "@/lib/pricing";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart();
@@ -54,7 +55,7 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-sm">INR {(item.product.price * item.quantity).toLocaleString()}</span>
+                      <span className="font-semibold text-sm">INR {(getSellingPrice(item.product) * item.quantity).toLocaleString()}</span>
                       <button onClick={() => removeItem(item.product.id)} className="text-red-500">
                         <Trash2 size={15} />
                       </button>
