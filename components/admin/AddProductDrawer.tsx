@@ -300,6 +300,7 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
         description: payload.description,
         price: payload.price,
         salePrice: payload.salePrice,
+        bestSeller: false,
         stock: payload.stock,
         category: payload.category,
         categoryId: payload.category,

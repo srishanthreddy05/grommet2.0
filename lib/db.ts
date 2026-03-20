@@ -16,6 +16,14 @@ import {
 import type { Product, Order, Category, Review, SiteSettings, CartItem, DMProof } from "@/types";
 import { slugify } from "@/lib/slug";
 
+function toBestSellerFlag(value: unknown): boolean {
+  if (value === true) return true;
+  if (typeof value === "string") {
+    return value.trim().toLowerCase() === "true";
+  }
+  return false;
+}
+
 function mapCategory(id: string, raw: any): Category {
   const orderValue = Number(raw?.order);
   const imageStr = raw?.image ? String(raw.image).trim() : "";
@@ -51,6 +59,8 @@ function mapProduct(id: string, raw: any): Product {
         : source?.salePrice
           ? Number(source.salePrice)
           : null,
+    bestSeller: toBestSellerFlag(source?.bestSeller),
+    soldCount: typeof source?.soldCount === "number" ? Number(source.soldCount) : undefined,
     tags: Array.isArray(source?.tags)
       ? source.tags.map((tag: unknown) => String(tag || "").trim()).filter(Boolean)
       : [],
@@ -153,6 +163,8 @@ export async function createProduct(data: Omit<Product, "id">): Promise<string> 
   await set(newRef, {
     ...data,
     slug: normalizedSlug,
+    bestSeller: Boolean(data.bestSeller),
+    ...(typeof data.soldCount === "number" ? { soldCount: Number(data.soldCount) } : {}),
     category: data.categoryId,
     displayImage: data.imageUrl,
     createdAt: data.createdAt || Date.now(),
@@ -169,13 +181,21 @@ export async function updateProduct(id: string, data: Partial<Product>): Promise
         ? slugify(data.name)
         : undefined;
 
-  await update(ref(db, `stock/${id}`), {
+  const payload: Record<string, unknown> = {
     ...data,
     ...(normalizedSlug ? { slug: normalizedSlug } : {}),
-    category: data.categoryId,
-    displayImage: data.imageUrl,
     updatedAt: Date.now(),
-  });
+  };
+
+  if (typeof data.categoryId === "string") {
+    payload.category = data.categoryId;
+  }
+
+  if (typeof data.imageUrl === "string") {
+    payload.displayImage = data.imageUrl;
+  }
+
+  await update(ref(db, `stock/${id}`), payload);
 }
 
 export async function deleteProduct(id: string): Promise<void> {

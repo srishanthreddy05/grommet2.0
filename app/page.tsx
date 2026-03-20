@@ -1,15 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import HeroSection from "@/components/home/HeroSection";
-import CategoryCircleSection from "@/components/home/CategoryCircleSection";
 import SecondaryCategoryGrid from "@/components/home/SecondaryCategoryGrid";
 import ProductRow from "@/components/home/ProductRow";
-import MarqueeStrip from "@/components/home/MarqueeStrip";
-import BestsellerSection from "@/components/home/BestsellerSection";
 import ReviewSection from "@/components/home/ReviewSection";
 import DMSection from "@/components/home/DMSection";
-import EmailSubscribe from "@/components/home/EmailSubscribe";
 import SplitCategorySection from "@/components/home/SplitCategorySection";
+import ProductCard from "@/components/product/ProductCard";
 import { getProducts, getCategories } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -42,12 +39,9 @@ export default async function HomePage() {
     categories.find((c) => c.slug === slug);
 
   const getProductsByCategory = (categoryId: string) =>
-    products.filter((p) => p.categoryId === categoryId);
-
-  const productByCategory = categories.map((category) => ({
-    category,
-    products: getProductsByCategory(category.id),
-  }));
+    products
+      .filter((p) => p.categoryId === categoryId)
+      .sort((a, b) => b.createdAt - a.createdAt);
 
   const featuredCategories = CATEGORY_LAYOUT.featured
     .map((slug) => getCategoryBySlug(slug))
@@ -59,41 +53,53 @@ export default async function HomePage() {
   const carFramesHref = carFrames?.slug ? `/collections/${carFrames.slug}` : carFrames?.id ? `/collections/${carFrames.id}` : "/collections";
   const hotWheelsHref = hotWheels?.slug ? `/collections/${hotWheels.slug}` : hotWheels?.id ? `/collections/${hotWheels.id}` : "/collections";
 
-  const firstCategory = productByCategory[0];
-  const secondCategory = productByCategory[1];
-  const thirdCategory = productByCategory[2];
+  const renderedProductIds = new Set<string>();
+  const dedupeProducts = (input: any[]) =>
+    input.filter((product) => {
+      if (!product?.id || renderedProductIds.has(product.id)) return false;
+      renderedProductIds.add(product.id);
+      return true;
+    });
 
-  // Hot Wheels products
-  const hotWheelsProducts = hotWheels
-    ? products.filter((product) => product.categoryId === hotWheels.id)
-    : [];
+  const carFramesProducts = carFrames ? dedupeProducts(getProductsByCategory(carFrames.id).slice(0, 8)) : [];
+  const hotWheelsProducts = hotWheels ? dedupeProducts(getProductsByCategory(hotWheels.id).slice(0, 8)) : [];
 
   // Split sections data
   const splitSections = CATEGORY_LAYOUT.split
     .map((slug) => {
       const category = getCategoryBySlug(slug);
+      const sectionProducts = category ? dedupeProducts(getProductsByCategory(category.id)).slice(0, 2) : [];
       return {
         slug,
         category,
         image: SPLIT_SECTION_IMAGES[slug] || category?.image || "/placeholder.png",
-        products: category ? getProductsByCategory(category.id) : [],
+        products: sectionProducts,
       };
     })
     .filter((section) => section.products.length > 0);
 
+  const productsArray = Array.isArray(products)
+    ? products
+    : Object.entries(products || {}).map(([id, value]) => ({ id, ...(value as Record<string, unknown>) }));
+
+  const bestSellers = productsArray
+    .filter((product) => product.bestSeller === true || product.bestSeller === "true")
+    .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
+    .slice(0, 3);
+
+  console.log("Products:", productsArray);
+  console.log("Best Sellers:", bestSellers);
+
   return (
     <div className="page-enter">
-      {/* Top Categories - Circular Icons */}
-      <CategoryCircleSection categories={categories} />
-
       <HeroSection collectionHref={carFramesHref} />
 
-      {firstCategory && firstCategory.products.length > 0 && (
+      {carFrames && carFramesProducts.length > 0 && (
         <ProductRow
-          title={firstCategory.category.name}
+          title={carFrames.name}
           subtitle="Latest Collection"
-          products={firstCategory.products}
-          viewAllHref={`/collections/${firstCategory.category.slug || firstCategory.category.id}`}
+          products={carFramesProducts}
+          viewAllHref={carFramesHref}
         />
       )}
 
@@ -110,20 +116,24 @@ export default async function HomePage() {
         />
       )}
 
-      <MarqueeStrip
-        items={["New Drop Every Month", "Delivery in 5–7 Days", "Pan-India Free Shipping"]}
-      />
+      {/* Controlled Best Sellers */}
+      {bestSellers.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-gray-200 rounded-3xl p-8 sm:p-12">
+            <div className="text-center mb-8">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold">Bestsellers</h2>
+              <p className="text-gray-500 text-sm mt-1">Sold over 150+ pieces</p>
+            </div>
 
-      {/* Bestsellers */}
-      {products.length > 0 ? <BestsellerSection products={products.slice(0, 3)} /> : null}
-
-      {secondCategory && secondCategory.products.length > 0 && (
-        <ProductRow
-          title={secondCategory.category.name}
-          subtitle="Fresh Picks"
-          products={secondCategory.products}
-          viewAllHref={`/collections/${secondCategory.category.slug || secondCategory.category.id}`}
-        />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+              {bestSellers.map((product) => (
+                <div key={product.id} className="bg-white rounded-xl p-4 shadow-sm">
+                  <ProductCard product={product} compact />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Split Category Sections */}
@@ -144,24 +154,8 @@ export default async function HomePage() {
       {/* Reviews */}
       <ReviewSection />
 
-      {thirdCategory && thirdCategory.products.length > 0 && (
-        <ProductRow
-          title={thirdCategory.category.name}
-          subtitle="Top Rated"
-          products={thirdCategory.products}
-          viewAllHref={`/collections/${thirdCategory.category.slug || thirdCategory.category.id}`}
-        />
-      )}
-
       {/* DM Screenshots */}
       <DMSection />
-
-      <MarqueeStrip
-        items={["Free Shipping on All Orders", "Order and Get in 5-7 Days", "Secure Checkout via WhatsApp"]}
-        slow
-      />
-
-      <EmailSubscribe />
     </div>
   );
 }

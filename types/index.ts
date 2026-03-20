@@ -5,6 +5,8 @@ export interface Product {
   description: string;
   price: number;
   salePrice?: number | null;
+  bestSeller?: boolean;
+  soldCount?: number;
   tags?: string[];
   categoryId: string;
   imageUrl: string;

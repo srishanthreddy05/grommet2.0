@@ -8,6 +8,7 @@ import {
   Package,
   ShoppingBag,
   MessageSquare,
+  Star,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -38,6 +39,7 @@ const NAV: NavItem[] = [
   { label: "Categories", href: "/admin/categories", icon: Shapes },
   { label: "DM Proofs", href: "/admin/dm-proofs", icon: MessageSquare },
   { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Best Sellers", href: "/admin/best-sellers", icon: Star },
   { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
