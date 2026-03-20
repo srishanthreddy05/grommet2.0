@@ -124,3 +124,25 @@ body {
     transform: translateX(-50%);
   }
 }
+
+/* DM proofs infinite carousel */
+.dm-scroll-track {
+  display: flex;
+  gap: 0.75rem;
+  width: max-content;
+  animation: dmScroll 22s linear infinite;
+  will-change: transform;
+}
+
+.dm-scroll-track--pause:hover {
+  animation-play-state: paused;
+}
+
+@keyframes dmScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
