@@ -57,7 +57,7 @@ function BestsellerCard({ product }: { product: Product }) {
                   ) : null}
                 </div>
                 <Link
-                  href={`/product/${product.id}`}
+                  href={`/product/${product.slug || product.id}`}
                   className="bg-brand-black text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-brand-gray-800 transition-colors"
                 >
                   Buy Now

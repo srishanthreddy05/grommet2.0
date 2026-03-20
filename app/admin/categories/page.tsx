@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import Cropper, { type Area } from "react-easy-crop";
 import { listenToCategories, createCategory, updateCategory, deleteCategory } from "@/lib/db";
 import { uploadImageToCloudinary } from "@/lib/cloudinary-upload";
+import { slugify } from "@/lib/slug";
 import type { Category } from "@/types";
 
 function createImage(url: string): Promise<HTMLImageElement> {
@@ -129,17 +130,21 @@ export default function AdminCategoriesPage() {
     setSaving(true);
     try {
       const uploadedImage = await uploadImage();
+      const normalizedName = name.trim();
+      const slug = slugify(normalizedName);
 
       if (editingId) {
         await updateCategory(editingId, {
-          name: name.trim(),
+          name: normalizedName,
+          slug,
           order: Number(order),
           image: uploadedImage,
         });
         toast.success("Category updated");
       } else {
         await createCategory({
-          name: name.trim(),
+          name: normalizedName,
+          slug,
           order: Number(order),
           image: uploadedImage,
         } as Omit<Category, "id">);

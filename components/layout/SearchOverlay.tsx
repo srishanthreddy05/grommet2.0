@@ -9,6 +9,7 @@ import { db } from "@/lib/firebase";
 
 type SearchableProduct = {
   id: string;
+  slug?: string;
   name: string;
   tags: string[];
   category: string;
@@ -16,6 +17,7 @@ type SearchableProduct = {
 };
 
 type RawProduct = {
+  slug?: string;
   name?: string;
   tags?: string[];
   category?: string;
@@ -47,6 +49,7 @@ function mapProduct(id: string, raw: RawProduct): SearchableProduct {
   const source = raw?.album && typeof raw.album === "object" ? { ...raw, ...raw.album } : raw;
   return {
     id,
+    slug: String(source?.slug || "").trim() || id,
     name: String(source?.name || "Untitled Product"),
     tags: Array.isArray(source?.tags)
       ? source.tags.map((tag) => String(tag || "").trim()).filter(Boolean)
@@ -254,7 +257,7 @@ export default function SearchOverlay() {
                     {filteredProducts.map((product) => (
                       <Link
                         key={product.id}
-                        href={`/product/${product.id}`}
+                        href={`/product/${product.slug || product.id}`}
                         onClick={closeOverlay}
                         className="flex items-center gap-3 rounded-xl border border-transparent px-2 py-2 transition hover:border-brand-gray-200 hover:bg-brand-gray-50"
                       >

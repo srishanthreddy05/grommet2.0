@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ShoppingBag, Plus, Minus } from "lucide-react";
-import { getProductById } from "@/lib/db";
+import { useRouter } from "next/navigation";
+import { getProductBySlugOrId } from "@/lib/db";
 import { useCart } from "@/lib/cart-context";
 import type { Product } from "@/types";
 import toast from "react-hot-toast";
@@ -14,12 +15,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const { addItem, openCart } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
-    getProductById(params.id)
-      .then(setProduct)
+    getProductBySlugOrId(params.id)
+      .then((resolved) => {
+        setProduct(resolved);
+        if (resolved?.slug && params.id !== resolved.slug) {
+          router.replace(`/product/${resolved.slug}`);
+        }
+      })
       .finally(() => setLoading(false));
-  }, [params.id]);
+  }, [params.id, router]);
 
   if (loading) return (
     <div className="max-w-7xl mx-auto px-4 py-20 text-center">
@@ -67,9 +74,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="flex flex-col">
-          <div className="text-xs font-semibold tracking-widest uppercase text-brand-gray-400 mb-2">
-            Category ID: {product.categoryId}
-          </div>
           <h1 className="font-display text-3xl font-bold mb-4 leading-tight">{product.name}</h1>
 
           <div className="flex items-center gap-3 mb-6 flex-wrap">

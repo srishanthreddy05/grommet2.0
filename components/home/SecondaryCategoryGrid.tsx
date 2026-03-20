@@ -58,7 +58,7 @@ export default function SecondaryCategoryGrid({
           name: cat.name,
           description: `Explore our ${cat.name.toLowerCase()} collection`,
           image: cat.image,
-          href: `/collections/${cat.id}`,
+          href: `/collections/${cat.slug || cat.id}`,
         }));
       } else {
         items = categories as SecondaryCategoryItem[];

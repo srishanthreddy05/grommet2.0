@@ -14,6 +14,7 @@ const TOP_CATEGORIES = [
 
 interface CategoryCircleItem {
   id: string;
+  slug?: string;
   name: string;
   icon?: string;
   image?: string;
@@ -30,6 +31,7 @@ export default function CategoryCircleSection({
         console.log(`[CategoryCircleSection] Received ${categories.length} categories:`, categories.map(c => ({ name: c.name, hasImage: !!c.image }))),
         categories.slice(0, 5).map((cat) => ({
           id: cat.id,
+          slug: cat.slug,
           name: cat.name,
           image: cat.image,
           color: "from-slate-100 to-gray-100",
@@ -53,7 +55,7 @@ export default function CategoryCircleSection({
             {items.map((item) => (
               <Link
                 key={item.id}
-                href={`/collections/${item.id}`}
+                href={`/collections/${item.slug || item.id}`}
                 className="flex flex-col items-center gap-3 hover:opacity-80 transition-opacity"
               >
                 {/* Circular Container */}

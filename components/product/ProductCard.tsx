@@ -29,7 +29,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/product/${product.id}`} className="product-card group block">
+    <Link href={`/product/${product.slug || product.id}`} className="product-card group block">
       <div className="relative bg-brand-gray-50 rounded-xl overflow-hidden aspect-square mb-3">
         {/* Image */}
         {product.imageUrl ? (

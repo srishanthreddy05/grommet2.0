@@ -6,6 +6,7 @@ import { Loader2, Plus, X } from "lucide-react";
 import { onValue, push, ref, set } from "firebase/database";
 import { db } from "@/lib/firebase";
 import { uploadImageToCloudinary, uploadMultipleImagesToCloudinary } from "@/lib/cloudinary-upload";
+import { slugify } from "@/lib/slug";
 
 type Category = {
   id: string;
@@ -233,7 +234,7 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
 
     try {
       const categoryRef = push(ref(db, "categories"));
-      await set(categoryRef, { name });
+      await set(categoryRef, { name, slug: slugify(name) });
       setForm((prev) => ({ ...prev, category: categoryRef.key || "" }));
       setNewCategoryName("");
     } catch (error) {
@@ -286,6 +287,7 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
         category: form.category,
         createdAt: Date.now(),
       };
+      const productSlug = slugify(payload.name);
 
       const productRef = push(ref(db, "products"));
       if (!productRef.key) {
@@ -293,6 +295,7 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
       }
 
       await set(ref(db, `stock/${productRef.key}`), {
+        slug: productSlug,
         name: payload.name,
         description: payload.description,
         price: payload.price,
@@ -311,7 +314,7 @@ export default function AddProductDrawer({ isOpen, onCloseAction, onSuccessActio
 
       // Keep a mirror in /products, but don't block creation if only this path is restricted.
       try {
-        await set(ref(db, `products/${productRef.key}`), payload);
+        await set(ref(db, `products/${productRef.key}`), { ...payload, slug: productSlug });
       } catch (mirrorError) {
         console.warn("Non-blocking mirror write to products failed:", mirrorError);
       }

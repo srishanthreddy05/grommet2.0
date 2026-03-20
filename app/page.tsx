@@ -34,8 +34,8 @@ export default async function HomePage() {
     (c) => String(c?.name || "").trim().toLowerCase() === "hot wheels"
   );
 
-  const carFramesHref = carFrames?.id ? `/collections/${carFrames.id}` : "/collections";
-  const hotWheelsHref = hotWheels?.id ? `/collections/${hotWheels.id}` : "/collections";
+  const carFramesHref = carFrames?.slug ? `/collections/${carFrames.slug}` : carFrames?.id ? `/collections/${carFrames.id}` : "/collections";
+  const hotWheelsHref = hotWheels?.slug ? `/collections/${hotWheels.slug}` : hotWheels?.id ? `/collections/${hotWheels.id}` : "/collections";
 
   const firstCategory = productByCategory[0];
   const secondCategory = productByCategory[1];
@@ -53,7 +53,7 @@ export default async function HomePage() {
           title={firstCategory.category.name}
           subtitle="Latest Collection"
           products={firstCategory.products}
-          viewAllHref={`/collections/${firstCategory.category.id}`}
+          viewAllHref={`/collections/${firstCategory.category.slug || firstCategory.category.id}`}
         />
       )}
 
@@ -72,7 +72,7 @@ export default async function HomePage() {
           title={secondCategory.category.name}
           subtitle="Fresh Picks"
           products={secondCategory.products}
-          viewAllHref={`/collections/${secondCategory.category.id}`}
+          viewAllHref={`/collections/${secondCategory.category.slug || secondCategory.category.id}`}
         />
       )}
 
@@ -87,7 +87,7 @@ export default async function HomePage() {
           title={thirdCategory.category.name}
           subtitle="Top Rated"
           products={thirdCategory.products}
-          viewAllHref={`/collections/${thirdCategory.category.id}`}
+          viewAllHref={`/collections/${thirdCategory.category.slug || thirdCategory.category.id}`}
         />
       )}
 

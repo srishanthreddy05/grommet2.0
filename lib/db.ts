@@ -14,13 +14,17 @@ import {
   runTransaction,
 } from "firebase/database";
 import type { Product, Order, Category, Review, SiteSettings, CartItem, DMProof } from "@/types";
+import { slugify } from "@/lib/slug";
 
 function mapCategory(id: string, raw: any): Category {
   const orderValue = Number(raw?.order);
   const imageStr = raw?.image ? String(raw.image).trim() : "";
+  const name = String(raw?.name || "Unnamed Category");
+  const slug = String(raw?.slug || "").trim() || slugify(name);
   return {
     id,
-    name: String(raw?.name || "Unnamed Category"),
+    slug: slug || id,
+    name,
     order: Number.isFinite(orderValue) && orderValue > 0 ? orderValue : undefined,
     image: imageStr || undefined,
     createdAt: raw?.createdAt ? Number(raw.createdAt) : undefined,
@@ -32,10 +36,13 @@ function mapProduct(id: string, raw: any): Product {
   const source = raw?.album && typeof raw.album === "object" ? { ...raw, ...raw.album } : raw;
   const imageUrl = String(source?.imageUrl || source?.displayImage || source?.images?.[0] || "");
   const categoryId = String(source?.categoryId || source?.category || "");
+  const productName = String(source?.name || "Untitled Product");
+  const slug = String(source?.slug || "").trim() || slugify(productName);
 
   return {
     id,
-    name: String(source?.name || "Untitled Product"),
+    slug: slug || id,
+    name: productName,
     description: String(source?.description || ""),
     price: Number(source?.price || 0),
     salePrice:
@@ -119,6 +126,14 @@ export async function getProductById(id: string): Promise<Product | null> {
   return mapProduct(id, snap.val());
 }
 
+export async function getProductBySlugOrId(identifier: string): Promise<Product | null> {
+  const byId = await getProductById(identifier);
+  if (byId) return byId;
+
+  const all = await getProducts();
+  return all.find((product) => product.slug === identifier) || null;
+}
+
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
   const products = await getProducts();
   return products
@@ -132,8 +147,10 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 
 export async function createProduct(data: Omit<Product, "id">): Promise<string> {
   const newRef = push(ref(db, "stock"));
+  const normalizedSlug = String(data.slug || "").trim() || slugify(data.name);
   await set(newRef, {
     ...data,
+    slug: normalizedSlug,
     category: data.categoryId,
     displayImage: data.imageUrl,
     createdAt: data.createdAt || Date.now(),
@@ -143,8 +160,16 @@ export async function createProduct(data: Omit<Product, "id">): Promise<string> 
 }
 
 export async function updateProduct(id: string, data: Partial<Product>): Promise<void> {
+  const normalizedSlug =
+    typeof data.slug === "string" && data.slug.trim().length > 0
+      ? data.slug.trim()
+      : typeof data.name === "string"
+        ? slugify(data.name)
+        : undefined;
+
   await update(ref(db, `stock/${id}`), {
     ...data,
+    ...(normalizedSlug ? { slug: normalizedSlug } : {}),
     category: data.categoryId,
     displayImage: data.imageUrl,
     updatedAt: Date.now(),
@@ -179,8 +204,10 @@ export async function createCategory(data: Omit<Category, "id">): Promise<string
   const id = String(Date.now());
   const newRef = ref(db, `categories/${id}`);
   const now = Date.now();
+  const normalizedSlug = String(data.slug || "").trim() || slugify(data.name);
   await set(newRef, {
     name: data.name,
+    slug: normalizedSlug,
     ...(typeof data.order === "number" && data.order > 0 ? { order: data.order } : {}),
     ...(typeof data.image === "string" ? { image: data.image } : {}),
     createdAt: now,
@@ -189,9 +216,17 @@ export async function createCategory(data: Omit<Category, "id">): Promise<string
   return id;
 }
 
-export async function updateCategory(id: string, data: Partial<Pick<Category, "name" | "order" | "image">>): Promise<void> {
+export async function updateCategory(id: string, data: Partial<Pick<Category, "name" | "slug" | "order" | "image">>): Promise<void> {
+  const normalizedSlug =
+    typeof data.slug === "string" && data.slug.trim().length > 0
+      ? data.slug.trim()
+      : typeof data.name === "string" && data.name.trim().length > 0
+        ? slugify(data.name)
+        : undefined;
+
   await update(ref(db, `categories/${id}`), {
     ...(typeof data.name === "string" ? { name: data.name } : {}),
+    ...(normalizedSlug ? { slug: normalizedSlug } : {}),
     ...(typeof data.order === "number" && data.order > 0 ? { order: data.order } : {}),
     ...(typeof data.image === "string" ? { image: data.image } : {}),
     updatedAt: Date.now(),

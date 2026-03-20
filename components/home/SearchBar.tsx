@@ -9,6 +9,7 @@ import ProductCard from "@/components/product/ProductCard";
 import type { Product } from "@/types";
 
 type RawProduct = {
+  slug?: string;
   name?: string;
   description?: string;
   price?: number;
@@ -28,6 +29,7 @@ type RawProduct = {
 function mapSearchProduct(id: string, raw: RawProduct): Product {
   return {
     id,
+    slug: String(raw?.slug || "").trim() || id,
     name: String(raw?.name || "Untitled Product"),
     description: String(raw?.description || ""),
     price: Number(raw?.price || 0),

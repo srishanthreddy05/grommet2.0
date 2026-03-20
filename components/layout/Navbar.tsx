@@ -13,9 +13,9 @@ import MenuDrawer from "@/components/layout/MenuDrawer";
 import type { Category } from "@/types";
 
 const fallbackLinks = [
-  { id: "fallback-1", name: "Car Frames" },
-  { id: "fallback-2", name: "Phone Cases" },
-  { id: "fallback-3", name: "Tumblers" },
+  { id: "fallback-1", slug: "car-frames", name: "Car Frames" },
+  { id: "fallback-2", slug: "phone-cases", name: "Phone Cases" },
+  { id: "fallback-3", slug: "tumblers", name: "Tumblers" },
 ];
 
 export default function Navbar() {
@@ -38,7 +38,7 @@ export default function Navbar() {
 
   const navLinks = (orderedCategories.length > 0 ? orderedCategories : fallbackLinks).map((cat) => ({
     label: cat.name,
-    href: `/collections/${cat.id}`,
+    href: `/collections/${cat.slug || cat.id}`,
   }));
 
   const drawerLinks = [
@@ -128,6 +128,20 @@ export default function Navbar() {
                   </span>
                 )}
               </button>
+            </div>
+          </div>
+
+          <div className="lg:hidden pb-3 overflow-x-auto hide-scrollbar px-1">
+            <div className="flex gap-6 min-w-max">
+              {navLinks.map((link) => (
+                <Link
+                  key={`mobile-${link.href}`}
+                  href={link.href}
+                  className="whitespace-nowrap text-sm font-medium text-brand-gray-600 hover:text-brand-black transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

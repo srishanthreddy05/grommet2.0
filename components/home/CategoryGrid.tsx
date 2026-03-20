@@ -22,7 +22,7 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
         {cats.slice(0, 5).map((cat: any) => (
           <Link
             key={cat.id}
-            href={`/collections/${cat.id}`}
+            href={`/collections/${cat.slug || cat.id}`}
             className="group relative bg-brand-gray-50 rounded-xl overflow-hidden aspect-square flex flex-col items-center justify-end p-3 hover:shadow-md transition-shadow"
           >
             <Image
