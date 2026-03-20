@@ -1,11 +1,11 @@
 import HeroSection from "@/components/home/HeroSection";
-import CategoryGrid from "@/components/home/CategoryGrid";
+import CategoryCircleSection from "@/components/home/CategoryCircleSection";
+import SecondaryCategoryGrid from "@/components/home/SecondaryCategoryGrid";
 import ProductRow from "@/components/home/ProductRow";
 import MarqueeStrip from "@/components/home/MarqueeStrip";
 import BestsellerSection from "@/components/home/BestsellerSection";
 import ReviewSection from "@/components/home/ReviewSection";
 import DMSection from "@/components/home/DMSection";
-import IllustrationGifts from "@/components/home/IllustrationGifts";
 import EmailSubscribe from "@/components/home/EmailSubscribe";
 import { getProducts, getCategories } from "@/lib/db";
 
@@ -31,7 +31,9 @@ export default async function HomePage() {
 
   return (
     <div className="page-enter">
-      <CategoryGrid categories={categories} />
+      {/* Top Categories - Circular Icons */}
+      <CategoryCircleSection categories={categories} />
+
       <HeroSection />
 
       {firstCategory && firstCategory.products.length > 0 && (
@@ -47,7 +49,7 @@ export default async function HomePage() {
       <PolaroidFeature />
 
       <MarqueeStrip
-        items={["New Drop Every Month", "Delivery in 5–7 Days", "Pan-India Free Shipping", "100% Customised"]}
+        items={["New Drop Every Month", "Delivery in 5–7 Days", "Pan-India Free Shipping"]}
       />
 
       {/* Bestsellers */}
@@ -62,8 +64,8 @@ export default async function HomePage() {
         />
       )}
 
-      {/* Illustration Gifts */}
-      <IllustrationGifts />
+      {/* Featured Section */}
+      <SecondaryCategoryGrid />
 
       {/* Reviews */}
       <ReviewSection />

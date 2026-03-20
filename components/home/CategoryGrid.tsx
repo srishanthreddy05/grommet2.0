@@ -24,9 +24,9 @@ export default function CategoryGrid({ categories }: { categories: Category[] })
             href={`/collections/${cat.id}`}
             className="group relative bg-brand-gray-50 rounded-xl overflow-hidden aspect-square flex flex-col items-center justify-end p-3 hover:shadow-md transition-shadow"
           >
-            {(cat as any).image ? (
+            {(cat as any).image || categories.length > 0 ? (
               <Image
-                src={(cat as any).image}
+                src={(cat as any).image || "/placeholder.png"}
                 alt={cat.name}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"

@@ -16,9 +16,14 @@ import {
 import type { Product, Order, Category, Review, SiteSettings, CartItem } from "@/types";
 
 function mapCategory(id: string, raw: any): Category {
+  const orderValue = Number(raw?.order);
   return {
     id,
     name: String(raw?.name || "Unnamed Category"),
+    order: Number.isFinite(orderValue) && orderValue > 0 ? orderValue : undefined,
+    image: raw?.image ? String(raw.image) : "",
+    createdAt: raw?.createdAt ? Number(raw.createdAt) : undefined,
+    updatedAt: raw?.updatedAt ? Number(raw.updatedAt) : undefined,
   };
 }
 
@@ -146,13 +151,32 @@ export async function deleteProduct(id: string): Promise<void> {
 export async function getCategories(): Promise<Category[]> {
   const snap = await get(ref(db, "categories"));
   if (!snap.exists()) return [];
-  return Object.entries(snap.val()).map(([id, val]) => mapCategory(id, val));
+  return Object.entries(snap.val())
+    .map(([id, val]) => mapCategory(id, val))
+    .sort((a, b) => (a.order || 999) - (b.order || 999));
 }
 
 export async function createCategory(data: Omit<Category, "id">): Promise<string> {
-  const newRef = push(ref(db, "categories"));
-  await set(newRef, { name: data.name });
-  return newRef.key!;
+  const id = String(Date.now());
+  const newRef = ref(db, `categories/${id}`);
+  const now = Date.now();
+  await set(newRef, {
+    name: data.name,
+    ...(typeof data.order === "number" && data.order > 0 ? { order: data.order } : {}),
+    ...(typeof data.image === "string" ? { image: data.image } : {}),
+    createdAt: now,
+    updatedAt: now,
+  });
+  return id;
+}
+
+export async function updateCategory(id: string, data: Partial<Pick<Category, "name" | "order" | "image">>): Promise<void> {
+  await update(ref(db, `categories/${id}`), {
+    ...(typeof data.name === "string" ? { name: data.name } : {}),
+    ...(typeof data.order === "number" && data.order > 0 ? { order: data.order } : {}),
+    ...(typeof data.image === "string" ? { image: data.image } : {}),
+    updatedAt: Date.now(),
+  });
 }
 
 export async function deleteCategory(id: string): Promise<void> {
@@ -359,7 +383,9 @@ export function listenToCategories(callback: (categories: Category[]) => void) {
   const categoriesRef = ref(db, "categories");
   const handler = (snap: any) => {
     if (!snap.exists()) return callback([]);
-    const categories = Object.entries(snap.val()).map(([id, val]) => mapCategory(id, val));
+    const categories = Object.entries(snap.val())
+      .map(([id, val]) => mapCategory(id, val))
+      .sort((a, b) => (a.order || 999) - (b.order || 999));
     callback(categories);
   };
   onValue(categoriesRef, handler);

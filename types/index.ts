@@ -15,6 +15,10 @@ export interface Product {
 export interface Category {
   id: string;
   name: string;
+  order?: number;
+  image?: string;
+  createdAt?: number;
+  updatedAt?: number;
   productCount?: number;
 }
 

@@ -34,7 +34,9 @@ export default function Navbar() {
 
   useEffect(() => listenToCategories(setCategories), []);
 
-  const navLinks = (categories.length > 0 ? categories : fallbackLinks).map((cat) => ({
+  const orderedCategories = [...categories].sort((a, b) => (a.order || 999) - (b.order || 999));
+
+  const navLinks = (orderedCategories.length > 0 ? orderedCategories : fallbackLinks).map((cat) => ({
     label: cat.name,
     href: `/collections/${cat.id}`,
   }));
