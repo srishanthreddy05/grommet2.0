@@ -15,7 +15,7 @@ import type { Category } from "@/types";
 const fallbackLinks = [
   { id: "fallback-1", slug: "car-frames", name: "Car Frames" },
   { id: "fallback-2", slug: "phone-cases", name: "Phone Cases" },
-  { id: "fallback-3", slug: "tumblers", name: "Tumblers" },
+  { id: "fallback-3", slug: "tumblers", name: "Watches" },
 ];
 
 export default function Navbar() {
