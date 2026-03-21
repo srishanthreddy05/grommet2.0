@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import CartDrawer from "@/components/cart/CartDrawer";
 import Footer from "@/components/layout/Footer";
 import SearchOverlay from "@/components/layout/SearchOverlay";
+import CategoryCircleSection from "@/components/home/CategoryCircleSection";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,6 +18,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
+      <CategoryCircleSection />
       <SearchOverlay />
       <CartDrawer />
       <main>{children}</main>

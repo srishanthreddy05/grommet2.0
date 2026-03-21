@@ -1,13 +1,13 @@
 const REVIEWS = [
   {
-    name: "Aisha Khan",
+    name: "Akshay kumar",
     initials: "AK",
     rating: 5,
     text: "Thank you so much! The frames are looking really good even with minimal detailing. Quality is amazing 🙌",
   },
   {
-    name: "Rahul Verma",
-    initials: "RV",
+    name: "RamaKanth",
+    initials: "RK",
     rating: 5,
     text: "Being a Porsche fan, this is exactly what I wanted 🔥 The Hot Wheels collection looks insane!",
   },
@@ -18,8 +18,8 @@ const REVIEWS = [
     text: "Greattttt thank youuuu so muchhhh ❤️ Loved the final output!",
   },
   {
-    name: "Arjun Mehta",
-    initials: "AM",
+    name: "Arjun ",
+    initials: "A",
     rating: 5,
     text: "This is sooo good! Thank you for the amazing work 🙌 Will definitely order again.",
   },

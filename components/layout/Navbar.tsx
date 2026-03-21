@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Great_Vibes } from "next/font/google";
 import { ShoppingBag, Search, User, Menu } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
@@ -11,6 +12,11 @@ import { listenToCategories } from "@/lib/db";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import MenuDrawer from "@/components/layout/MenuDrawer";
 import type { Category } from "@/types";
+
+const brandScript = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 const fallbackLinks = [
   { id: "fallback-1", slug: "car-frames", name: "Car Frames" },
@@ -72,7 +78,10 @@ export default function Navbar() {
             </button>
 
             {/* Logo */}
-            <Link href="/" className="font-display text-xl font-bold tracking-tight flex-shrink-0">
+            <Link
+              href="/"
+              className={`${brandScript.className} text-4xl leading-none tracking-normal flex-shrink-0 text-brand-black`}
+            >
               Grommet
             </Link>
 
@@ -131,19 +140,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="lg:hidden pb-3 overflow-x-auto hide-scrollbar px-1">
-            <div className="flex gap-6 min-w-max">
-              {navLinks.map((link) => (
-                <Link
-                  key={`mobile-${link.href}`}
-                  href={link.href}
-                  className="whitespace-nowrap text-sm font-medium text-brand-gray-600 hover:text-brand-black transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
       </header>
     </>

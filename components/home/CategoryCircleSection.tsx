@@ -1,95 +1,68 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { listenToCategories } from "@/lib/db";
 import type { Category } from "@/types";
 
-const TOP_CATEGORIES = [
-  { id: "hotWheels", name: "Hot Wheels", icon: "🔥", color: "from-red-100 to-orange-100" },
-  { id: "carFrames", name: "Car Frames", icon: "🚗", color: "from-blue-100 to-cyan-100" },
-  { id: "phoneCases", name: "Phone Cases", icon: "📱", color: "from-purple-100 to-pink-100" },
-  { id: "posterFrames", name: "Poster Frames", icon: "🖼️", color: "from-amber-100 to-yellow-100" },
-  { id: "watches", name: "Watches", icon: "⌚", color: "from-slate-100 to-gray-100" },
-];
+export default function CategoryCircleSection() {
+  const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
 
-interface CategoryCircleItem {
-  id: string;
-  slug?: string;
-  name: string;
-  icon?: string;
-  image?: string;
-  color?: string;
-}
+  useEffect(() => {
+    const unsubscribe = listenToCategories((items) => setCategories(Array.isArray(items) ? items : []));
+    return () => unsubscribe();
+  }, []);
 
-export default function CategoryCircleSection({
-  categories,
-}: {
-  categories?: Category[];
-}) {
-  const items: CategoryCircleItem[] = categories
-    ? (
-        console.log(`[CategoryCircleSection] Received ${categories.length} categories:`, categories.map(c => ({ name: c.name, hasImage: !!c.image }))),
-        categories.slice(0, 5).map((cat) => ({
-          id: cat.id,
-          slug: cat.slug,
-          name: cat.name,
-          image: cat.image,
-          color: "from-slate-100 to-gray-100",
-        }))
-      )
-    : TOP_CATEGORIES;
+  const topCategories = useMemo(() => {
+    return [...categories]
+      .sort((a, b) => {
+        const aOrder = typeof a.order === "number" ? a.order : Number.MAX_SAFE_INTEGER;
+        const bOrder = typeof b.order === "number" ? b.order : Number.MAX_SAFE_INTEGER;
+        if (aOrder !== bOrder) return aOrder - bOrder;
+        return Number(b.createdAt || 0) - Number(a.createdAt || 0);
+      })
+      .slice(0, 5);
+  }, [categories]);
+
+  if (topCategories.length === 0) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="text-center mb-8">
-        <p className="text-xs font-semibold tracking-widest uppercase text-brand-gray-400 mb-2">
-          Shop By Category
-        </p>
-        <h2 className="font-display text-2xl font-bold">Popular Categories</h2>
-      </div>
-
-      {/* Horizontal Scroll Container */}
-      <div className="flex justify-center">
-        <div className="overflow-x-auto scrollbar-hide w-full sm:w-auto">
-          <div className="flex gap-6 sm:gap-8 justify-center px-4 sm:px-0 pb-2 min-w-max sm:min-w-0">
-            {items.map((item) => (
-              <Link
-                key={item.id}
-                href={`/collections/${item.slug || item.id}`}
-                className="flex flex-col items-center gap-3 hover:opacity-80 transition-opacity"
-              >
-                {/* Circular Container */}
-                <div className={`relative w-20 h-20 rounded-full flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br ${item.color}`}>
-                  {categories && categories.length > 0 ? (
-                    <Image
-                      src={item.image || "/placeholder.png"}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  ) : (
-                    <span className="text-3xl">{item.icon || "🎁"}</span>
-                  )}
-                </div>
-
-                {/* Label */}
-                <span className="text-xs font-medium text-center max-w-[80px] line-clamp-2 text-brand-gray-700">
-                  {item.name}
-                </span>
-              </Link>
-            ))}
-          </div>
+    <section className="border-b border-brand-gray-100">
+      <div className="max-w-7xl mx-auto overflow-x-auto lg:overflow-visible hide-scrollbar px-4 py-3">
+        <div className="flex min-w-max lg:min-w-0 items-start gap-4 sm:gap-6 lg:justify-center">
+          {topCategories.map((category) => (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => router.push(`/collections/${category.slug || category.id}`)}
+              className="flex flex-col items-center text-center focus:outline-none"
+              aria-label={`Open ${category.name}`}
+            >
+              <div className="relative h-[70px] w-[70px] sm:h-[90px] sm:w-[90px] overflow-hidden rounded-full border border-brand-gray-200 bg-brand-gray-100 transition-transform duration-200 hover:scale-105 hover:shadow-md">
+                <Image
+                  src={category.image || "/placeholder.png"}
+                  alt={category.name}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 640px) 90px, 70px"
+                />
+              </div>
+              <span className="mt-2 w-[72px] sm:w-[94px] truncate text-xs sm:text-sm text-brand-gray-700">
+                {category.name}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Hide Scrollbar CSS */}
       <style jsx>{`
-        .scrollbar-hide {
+        .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-        .scrollbar-hide::-webkit-scrollbar {
+        .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
       `}</style>
