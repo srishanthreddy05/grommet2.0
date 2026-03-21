@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Great_Vibes } from "next/font/google";
 import { ShoppingBag, Search, User, Menu } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
@@ -12,11 +11,6 @@ import { listenToCategories } from "@/lib/db";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import MenuDrawer from "@/components/layout/MenuDrawer";
 import type { Category } from "@/types";
-
-const brandScript = Great_Vibes({
-  subsets: ["latin"],
-  weight: "400",
-});
 
 const fallbackLinks = [
   { id: "fallback-1", slug: "car-frames", name: "Car Frames" },
@@ -68,7 +62,7 @@ export default function Navbar() {
       {/* Main Navbar */}
       <header className={`sticky top-0 z-50 bg-white transition-shadow duration-200 ${scrolled ? "shadow-sm border-b border-brand-gray-100" : "border-b border-brand-gray-100"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-24">
             {/* Mobile menu button */}
             <button
               className="lg:hidden p-2 -ml-2"
@@ -80,9 +74,17 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className={`${brandScript.className} text-4xl leading-none tracking-normal flex-shrink-0 text-brand-black`}
+              className="flex items-center gap-2 flex-shrink-0"
             >
-              Grommet
+              <Image
+                src="/logo.png"
+                alt="Grommet logo"
+                width={120}
+                height={120}
+                className="h-24 w-24 lg:h-20 lg:w-20 object-contain"
+                quality={100}
+                priority
+              />
             </Link>
 
             {/* Desktop Nav */}
