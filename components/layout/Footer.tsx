@@ -91,6 +91,33 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-zinc-800 text-center text-xs text-zinc-500">
           <p>© 2026 Grommet. All rights reserved.</p>
+
+          <div className="text-center text-xs text-gray-400 mt-6 space-y-1">
+            <p>
+              Built & Managed by{" "}
+              <a
+                href="https://instagram.com/thrivex.labs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:underline"
+              >
+                ThriveX Labs
+              </a>
+            </p>
+
+            <p className="text-gray-300">
+              Need a website like this?{" "}
+              <a
+                href="https://wa.me/918125902062?text=Hi%20I%20came%20through%20your%20project%20(Grommet)%20built%20by%20ThriveX%20Labs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                Contact us
+              </a>
+              {" "}→ +91 8125902062
+            </p>
+          </div>
         </div>
       </div>
     </footer>

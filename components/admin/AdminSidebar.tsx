@@ -109,6 +109,20 @@ function SidebarFooter({
         <LogOut size={16} />
         {!collapsed ? <span>Sign Out</span> : null}
       </button>
+
+      {!collapsed ? (
+        <div className="text-xs text-gray-400 px-1 mt-6">
+          <p>Powered by ThriveX Labs</p>
+          <a
+            href="https://instagram.com/thrivex.labs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            @thrivex.labs
+          </a>
+        </div>
+      ) : null}
     </div>
   );
 }
