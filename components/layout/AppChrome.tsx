@@ -10,6 +10,7 @@ import CategoryCircleSection from "@/components/home/CategoryCircleSection";
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith("/admin");
+  const hideCategoryCircles = pathname?.startsWith("/profile");
 
   if (isAdminRoute) {
     return <main>{children}</main>;
@@ -18,7 +19,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <CategoryCircleSection />
+      {!hideCategoryCircles && <CategoryCircleSection />}
       <SearchOverlay />
       <CartDrawer />
       <main>{children}</main>
