@@ -107,7 +107,7 @@ export default function CheckoutPage() {
         status: "confirmed",
       });
 
-      const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919999999999";
+      const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "917075074352";
       const message = formatWhatsAppOrderMessage({
         name,
         mobile,

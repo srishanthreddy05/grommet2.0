@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 const DEFAULTS: SiteSettings = {
   storeName: "Grommet",
   tagline: "Premium handcrafted gifts",
-  whatsappNumber: "919999999999",
+  whatsappNumber: "917075074352",
   announcementBar: ["NEW COLLECTION DROPPED", "FREE SHIPPING PAN-INDIA", "USE CODE WELCOME10"],
   socialLinks: { instagram: "" },
 };
@@ -65,7 +65,7 @@ export default function AdminSettings() {
             "WhatsApp Number",
             settings.whatsappNumber,
             (v) => setSettings((s) => ({ ...s, whatsappNumber: v })),
-            "Include country code. E.g. 919999999999"
+            "Include country code. E.g. 917075074352"
           )}
           {field(
             "Instagram Handle",
